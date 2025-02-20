@@ -14,3 +14,4 @@ Methodology: <ol>
 <li>clustering</li>
 <li>cell type inference and annotation</li>
 <li>differential expresiion for disease gene identification</li>
+</ol>
