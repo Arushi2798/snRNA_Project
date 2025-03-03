@@ -26,8 +26,6 @@ p4 <-DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'seurat_clusters') + No
 p5 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Cell.Type',label=TRUE)
 p6 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'cluster', label=TRUE)
 
-
-
 p1|p2
 p2|p4
 p5|p6
