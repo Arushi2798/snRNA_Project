@@ -16,7 +16,6 @@ seurat_hdf5 <- FindNeighbors(object = seurat_hdf5, dims = 1:30)
 seurat_hdf5 <- FindClusters(object = seurat_hdf5)
 seurat_hdf5 <- RunUMAP(object = seurat_hdf5, dims = 1:30)
 
-
 # plot
 p1 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Batch')
 p2 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Diagnosis',cols = c('red','green','blue'))
@@ -29,6 +28,7 @@ p6 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'cluster', label=TRUE)
 p1|p2
 p2|p4
 p5|p6
+
 #grid.arrange(p1, p2, ncol = 2, nrow = 2)
 
 #####
@@ -63,6 +63,6 @@ seurat.integrated <- RunUMAP(object = seurat.integrated, dims = 1:50)
  #             cols = c('red','green','blue'))
 #p3
 #grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
-grid.arrange(p1, p3, ncol = 2, nrow = 2)
+#grid.arrange(p1, p3, ncol = 2, nrow = 2)
 
 rm(p3,seurat.integrated, anchors,features,obj.list)
