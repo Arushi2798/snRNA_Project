@@ -1,8 +1,3 @@
-saveRDS(seurat_hdf5,file = "seurat_hdf5.rds")
-#for large file use hdf5
-SaveH5Seurat(seurat_hdf5, filename = "large_object.h5Seurat")
-
-#####
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -14,26 +9,26 @@ library(future)
 seurat_hdf5@meta.data$orig.ident = NULL
 seurat_hdf5@assays$RNA@meta.data = data.frame(Geneid = rownames(seurat_hdf5), Symbol = rownames(seurat_hdf5), row.names = rownames(seurat_hdf5), stringsAsFactors = FALSE)
 
-
 #####
+
 View(seurat_hdf5@meta.data)
 
 # Quality Control
+#calculate mitochondrial percentage
 seurat_hdf5[["percent.mt"]] <- PercentageFeatureSet(seurat_hdf5, pattern = "^MT-")
 View(seurat_hdf5@meta.data)
 
 summary(seurat_hdf5[[]]$percent.mt)
 
 # to vizualise the distribution
-# #Distribution of nFeature_RNA[The number of detected genes per cell],nCount_RNA[The number of unique molecular identifiers (UMIs) per cell,
+# Distribution of nFeature_RNA[The number of detected genes per cell],nCount_RNA[The number of unique molecular identifiers (UMIs) per cell,
 # representing RNA abundance],percent.mt (Mitochondrial Content)
 
 VlnPlot(seurat_hdf5, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 plot1 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
   geom_smooth(method = 'lm')
 plot2 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "percent.mt")
-plot1
-plot2
+plot1|plot2
 gc()
 
 
@@ -48,15 +43,12 @@ p1 = ggplot(meta1, aes(x = sid, y = nFeature_RNA, fill = Diagnosis)) + geom_viol
 p2 = ggplot(meta1, aes(x = sid, y = nCount_RNA, fill = Diagnosis)) + geom_violin(width = 0.8, scale = 'width') + theme_bw2() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, size = 6, hjust = 1), axis.text.y = element_text(size = 7)) + xlab(NULL)
 print(p1 / p2)
 
-
 seurat_hdf5@meta.data$SampleID = factor(seurat_hdf5@meta.data$SampleID)
 p3 = FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", pt.size=0.6, group.by='SampleID') + theme(title=element_text(size=10), legend.text=element_text(size=10), legend.title=element_text(size=12))
 print(p3)
 
-
 #####
 # Filter the Seurat object based on the suggested thresholds
-# Filtering
 seurat_hdf5 <- subset(seurat_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5 & percent.mt > 0.1)
 
 
@@ -82,7 +74,7 @@ genes = data.frame(genes, seurat_hdf5@assays[["SCT"]]@SCTModel.list[["counts"]]@
 hist(genes[, 'detection_rate'])
 
 
-#####
+##### or perform normalizedata instead of sctransform
 #normalize the filtered_seurat_obj and sav eas a new variable called norm_obj
 seurat_hdf5 <- NormalizeData(seurat_hdf5)
 
