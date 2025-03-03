@@ -13,5 +13,5 @@ Methodology: <ol>
 <li>feature extraction and dimensionality reduction</li>
 <li>clustering</li>
 <li>cell type inference and annotation</li>
-<li>differential expresiion for disease gene identification</li>
+<li>differential expression for disease gene identification</li>
 </ol>
