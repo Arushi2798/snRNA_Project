@@ -10,7 +10,7 @@ Methodology: <ol>
 <li>quantification of count matrix</li>
 <li>quality control</li>
 <li>normalization</li>
-<li>>feature extraction and dimensionality reduction</li>
+<li>feature extraction and dimensionality reduction</li>
 <li>clustering</li>
 <li>cell type inference and annotation</li>
 <li>differential expresiion for disease gene identification</li>
