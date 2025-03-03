@@ -1,11 +1,7 @@
-#Cell.Type <- c(rep("MG", 13), rep("OPC", 18), rep("OPC", 18), rep("OPC", 9), rep("OPC", 13),
- #              rep("INH", 22), rep("INH", 10), rep("INH", 17), rep("INH", 16),rep("INH", 25), rep("EX", 20),rep("EX", 22),
-  #             rep("ASC", 3), rep("ASC", 10)),
 # Assuming 'missing_barcodes' is a vector of the missing barcodes
 # and 'new_sample_ids' is a data frame containing the new SampleIDs
 
-# Create a named vector or a data frame that maps missing barcodes to new SampleIDs
-# For example:
+# Create a named vector or a data frame that maps missing barcodes to new SampleID
 new_sample_ids <- data.frame(Barcode = c("AACAAAGGTGTTGAGG-2","AAGGAATCAATTGGTC-2"  ,"ACCTGAAGTTGGTGTT-2" , "AGGGTGAGTATGTCAC-2"  ,"ATCCTATTCGACATAC-2" ,
                                          "ATGTCTTGTCACAGAG-2" , "CAGCCAGTCCTCAGAA-2",  "CTGAATGTCCCTCTCC-2",  "GACCGTGTCAAATAGG-2" , "GTGACGCGTGGTTCTA-2", 
                                          "GTTCATTCATCCAATG-2"  ,"GTTGAACCATGACGAG-2",  "TATCCTAAGCCTTTGA-2",  "AACCTTTGTGCCTAAT-3",  "ACTCTCGGTATCGTGT-3" ,
@@ -95,7 +91,6 @@ for (i in 1:nrow(new_sample_ids)) {
   barcode <- new_sample_ids$Barcode[i]
   sample <- new_sample_ids$SampleID[i]
   diagnose <- new_sample_ids$Diagnosis[i]
-  
   batch <- new_sample_ids$Batch[i]
   age <- new_sample_ids$Age[i]
   sex <- new_sample_ids$Sex[i]
@@ -103,7 +98,7 @@ for (i in 1:nrow(new_sample_ids)) {
   tangle <- new_sample_ids$Tangle.Stage[i]
   plaque <- new_sample_ids$Plaque.Stage[i]
   rin <- new_sample_ids$RIN[i]
-  
+
   # Check if the barcode exists in the Seurat object
   if (barcode %in% rownames(seurat_hdf5@meta.data)) {
     seurat_hdf5@meta.data[barcode, "SampleID"] <- sample
@@ -128,41 +123,3 @@ dim(updated_metadata)
 rm(batch,sex, age,rin,pmi,Age,Batch,diagnose,Diagnosis,Sex,RIN,PMI,Tangle.Stage,tangle,pla4
    ,Plaque.Stage)
 rm(plaque,barcode,i,missing_barcodes,sample)
-
-#####
-# Write the updated metadata back to a CSV file
-write.csv(updated_metadata, "D:/3rd sem/major_project/metadata_without_celltype1.csv", row.names = TRUE)
-
-# If you need to replace missing values in existing metadata with values from new_metadata:
-# Assuming you have an identifier to merge them
-
-#metadata <- merge(fullmatrix, updated_metadata, by = "barcode", all.x = TRUE)
-
-#####
-# Set row names if barcodes are in a column (e.g., "BarcodeColumn")
-#rownames(updated_metadata) <- updated_metadata$BarcodeColumn
-#rownames(fullmatrix) <- fullmatrix$BarcodeColumn
-
-# Remove the barcode column if necessary
-#updated_metadata <- updated_metadata[, -1]
-#fullmatrix <- fullmatrix[, -1]
-
-# Ensure the barcodes match between both datasets
-common_barcodes <- intersect(rownames(fullmatrix), rownames(updated_metadata))
-
-# Update the corresponding rows in fullmatrix with values from updated_metadata
-fullmatrix[common_barcodes, ] <- updated_metadata[common_barcodes, ]
-
-head(fullmatrix)  # View the first few rows
-# Check a specific barcode to see if it was updated
-
-# Write the updated metadata back to a CSV file
-write.csv(fullmatrix, "D:/3rd sem/major_project/fullmatrix_without_celltype2.csv", row.names = TRUE)
-
-
-barcode <- "TTGTGGAGTGAGATAT-9"  # Replace with a barcode of interest
-
-# Compare values for this barcode in both matrices
-fullmatrix[barcode, ]
-updated_metadata[barcode, ]
-
