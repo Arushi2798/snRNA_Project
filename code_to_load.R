@@ -8,6 +8,9 @@ library(presto)
 
 #set working directory
 setwd("path_to_directory")
+
+#read in the data
+
 hd5_object <- Read10X_h5(filename = "GSE174367_snRNA-seq_filtered_feature_bc_matrix.h5",
                          use.names = TRUE, unique.features = TRUE)
 
@@ -16,7 +19,7 @@ hd5_object <- Read10X_h5(filename = "GSE174367_snRNA-seq_filtered_feature_bc_mat
 barcodes <- colnames(hd5_object)
 
 # Filter for barcodes needed
-barcode_CT <- barcodes[grep(".*\\b(16|8|13|17|14|12|9|10|6|2|15|11|18|3)\\b$", barcodes)]
+barcode_CT <- barcodes[grep(".*\\b(sample_no_for_specific_samples)\\b$", barcodes)]
 
 # Create a logical vector for keeping the filtered barcodes
 keep_CT_columns <- colnames(hd5_object) %in% barcode_CT
