@@ -93,7 +93,6 @@ DimPlot(seurat_hdf5, reduction= "pca") + NoLegend()
 
 DimHeatmap(seurat_hdf5, dims = 1, cells = 500, balanced = TRUE)
 
-
 DimHeatmap(seurat_hdf5, dims = 1:20, cells = 500, balanced = TRUE)
  
 #PCA Visualization
@@ -118,7 +117,6 @@ print(pobj)
 dev.off()
 
 
- 
 # non-linear dimensionality reduction 
 seurat_hdf5 <- RunUMAP(seurat_hdf5, dims = 1:30, verbose = FALSE,seed.use = 4867)
 # note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
@@ -135,22 +133,24 @@ str(seurat_hdf5)
 seurat_hdf5 <- FindNeighbors(seurat_hdf5, dims = 1:30)
 
 # understanding resolution
-seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.3, 0.5, 0.7,1))
+seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.1,0.2,0.3, 0.5, 0.7,1))
 View(seurat_hdf5@meta.data)
 
 #used 
 seurat_hdf5 <- FindClusters(seurat_hdf5, resolution =0.3)
 
 #visualization
+
+DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.1", label = TRUE)
+DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.2", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.3", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.5", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.7", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.1", label = TRUE)
 
 head(Idents(seurat_hdf5),5)
-
-
- 
+#set the identity of the dataset for further ananlysis on the basis of cluster resolution
+Idents(seurat_hdf5) <- "RNA_snn_res.0.1" #if resolution of 0.1 preferred
 
 # findConserved markers 
 DefaultAssay(seurat_hdf5) <- "RNA"
@@ -160,8 +160,6 @@ all_cluster_markers <- list()
 
 # Get unique cluster identifiers
 clusters <- levels(Idents(seurat_hdf5)) # Assuming `Idents` contains the cluster information
-
-
 
 # Loop through each cluster and find conserved markers
 
@@ -198,14 +196,11 @@ names(seurat_hdf5@misc$all_cluster_markers)
 
 FeaturePlot(seurat_hdf5,features = c("ST18"), min.cutoff = "q10")
 
-
- 
 #Cell type annotation
 
 library(SingleR)
 library(celldex)
 library(pheatmap)
-
 
 View(seurat_hdf5@meta.data)
 ref <- celldex::HumanPrimaryCellAtlasData()
@@ -259,13 +254,14 @@ tab <- table(Assigned=seurat_hdf5@meta.data$cluster, Clusters=seurat_hdf5$seurat
 h4 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
 
 
- 
-
 # setting Idents as Seurat annotations provided (also a sanity check!)
 Idents(seurat_hdf5) <- seurat_hdf5@meta.data$seurat_annotations
 Idents(seurat_hdf5)
 
 DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE)
+
+
+#######yet to be performed
 
 #find markers between conditions---------------------
 seurat_hdf5$cell.type.cnd <- paste0(seurat_hdf5$seurat_annotations,'_', seurat_hdf5$Diagnosis)
