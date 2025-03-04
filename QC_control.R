@@ -80,12 +80,12 @@ seurat_hdf5 <- ScaleData(seurat_hdf5)
  
 # PCA
 seurat_hdf5 = RunPCA(seurat_hdf5, verbose = FALSE)
-# visualize PCA results
-print(seurat_hdf5[["pca"]], dims = 1:5, nfeatures = 5)
 
 # determine dimensionality of the data
 ElbowPlot(seurat_hdf5,ndims = 50)
 
+# visualize PCA results
+print(seurat_hdf5[["pca"]], dims = 1:5, nfeatures = 5)
 
 VizDimLoadings(seurat_hdf5, dims = 1:2, reduction = "pca")
 
@@ -286,7 +286,7 @@ head(markers_cluster3)
 FeaturePlot(seurat_hdf5, features = c('FCGR3A', 'AIF1', 'IFIT1'), split.by = 'stim', min.cutoff = 'q10')
 
 
- Extract top markers for each cluster ----
+#Extract top markers for each cluster ----
 
 top_markers_list <- lapply(all_cluster_markers, function(cluster_markers) {
   cluster_markers %>%
@@ -415,9 +415,3 @@ barplot(go_results, showCategory = 10)
 
 # Visualize enriched KEGG pathways
 emapplot(kegg_results)
-
-
-
-
-
-
