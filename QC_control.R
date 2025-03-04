@@ -232,7 +232,7 @@ p7 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'singleR',label=TRUE)+
 p5|p7
 
 
- Annotation diagnostics ----------
+#Annotation diagnostics ----------
 
 # ...Based on the scores within cells 
 view(pred)
