@@ -9,7 +9,6 @@ library(future)
 seurat_hdf5@meta.data$orig.ident = NULL
 seurat_hdf5@assays$RNA@meta.data = data.frame(Geneid = rownames(seurat_hdf5), Symbol = rownames(seurat_hdf5), row.names = rownames(seurat_hdf5), stringsAsFactors = FALSE)
 
-#####
 
 View(seurat_hdf5@meta.data)
 
@@ -29,10 +28,8 @@ plot1 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "nFeatur
   geom_smooth(method = 'lm')
 plot2 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "percent.mt")
 plot1|plot2
-gc()
 
-
-#####
+ 
 meta1 = seurat_hdf5@meta.data
 write.table(meta1, file=paste0('meta.seurat.raw.tsv'), quote = FALSE, sep = '\t', row.names = FALSE)
 meta1 = meta1[rev(order(meta1$Diagnosis)), ]
@@ -47,12 +44,11 @@ seurat_hdf5@meta.data$SampleID = factor(seurat_hdf5@meta.data$SampleID)
 p3 = FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", pt.size=0.6, group.by='SampleID') + theme(title=element_text(size=10), legend.text=element_text(size=10), legend.title=element_text(size=12))
 print(p3)
 
-#####
+ 
 # Filter the Seurat object based on the suggested thresholds
 seurat_hdf5 <- subset(seurat_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5)
 
 
-#####
 #either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
 seurat_hdf5 = SCTransform(seurat_hdf5, verbose = TRUE,variable.features.n = 2000,vst.flavor = "v2s")
 
@@ -62,12 +58,9 @@ genes = data.frame(genes, seurat_hdf5@assays[["SCT"]]@SCTModel.list[["counts"]]@
 hist(genes[, 'detection_rate'])
 
 
-##### or perform normalizedata instead of sctransform
-#normalize the filtered_seurat_obj and sav eas a new variable called norm_obj
+#or perform normalizedata instead of sctransform
 seurat_hdf5 <- NormalizeData(seurat_hdf5)
 
-
-#####
 # 4. Identify highly variable features 
 seurat_hdf5 <- FindVariableFeatures(seurat_hdf5, nfeatures = 2000)
 
@@ -80,86 +73,29 @@ plot2 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
 plot1
 plot2
 plot1|plot2
-gc()
 
-
-#####
-
-# Optional: Save to a CSV file for further analysis
-write.csv(matched_var_features_info, file = "D:/3rd sem/major_project/variable_features_true_info.csv", row.names = TRUE)
-cat("File saved")
-
-#rm(filtered_seurat_obj,hd5_object,normalized_data,seurat_hdf5)
-gc()  # Optional: Clean up memory
-
-
-
-#####
-#don't use this
-#condition to scale the data
-scaled_obj <- ScaleData(norm_obj, 
-                        features = VariableFeatures(norm_obj), 
-                        vars.to.regress = "percent.mt")
-
-##Split the dataset into smaller chunks as system is running out of memory while trying to scale the data
-# Get the variable features , here done in variable_features 
-
-# Split features into chunks, e.g., 500 genes per chunk
-feature_chunks <- split(variable_features, ceiling(seq_along(variable_features)/500))
-
-# Initialize an empty matrix for storing scaled data
-scaled_data <- matrix(nrow = length(variable_features), ncol = ncol(norm_obj))
-
-# Scale data in chunks and store it back in the matrix
-for (feature_chunk in feature_chunks) {
-  scaled_chunk <- ScaleData(norm_obj, features = feature_chunk, vars.to.regress = "percent.mt")
-  
-  # Store the scaled data for this chunk
-  scaled_data[rownames(scaled_chunk@assays$RNA@scale.data), ] <- scaled_chunk@assays$RNA@scale.data
-}
-
-# Assign the scaled data back to the Seurat object
-norm_obj@assays$RNA@scale.data <- scaled_data
-
-#
-all.genes <- rownames(seurat_hdf5)
-seurat_hdf5 <- ScaleData(seurat_hdf5, features = all.genes)
-dim(seurat_hdf5)
-str(seurat_hdf5)
-
-
-
-#####
 
 #scaling
 seurat_hdf5 <- ScaleData(seurat_hdf5)
-gc()
-
-
-#####
+ 
 # PCA
-#either this command
-seurat_hdf5 <- RunPCA(seurat_hdf5, features = VariableFeatures(object = seurat_hdf5))
-#or this command
 seurat_hdf5 = RunPCA(seurat_hdf5, verbose = FALSE)
 # visualize PCA results
 print(seurat_hdf5[["pca"]], dims = 1:5, nfeatures = 5)
 
 # determine dimensionality of the data
 ElbowPlot(seurat_hdf5,ndims = 50)
-gc()
+
 
 VizDimLoadings(seurat_hdf5, dims = 1:2, reduction = "pca")
 
 DimPlot(seurat_hdf5, reduction= "pca") + NoLegend()
 
 DimHeatmap(seurat_hdf5, dims = 1, cells = 500, balanced = TRUE)
-gc()
+
 
 DimHeatmap(seurat_hdf5, dims = 1:20, cells = 500, balanced = TRUE)
-
-
-#####
+ 
 #PCA Visualization
 
 total_variance <- sum(matrixStats::rowVars(Seurat::GetAssayData(seurat_hdf5, assay = "SCT", layer = "scale.data")))
@@ -182,19 +118,19 @@ print(pobj)
 dev.off()
 
 
-#####
+ 
 # non-linear dimensionality reduction 
 seurat_hdf5 <- RunUMAP(seurat_hdf5, dims = 1:30, verbose = FALSE,seed.use = 4867)
 # note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
 seurat_hdf5 = RunTSNE(seurat_hdf5, dims = 1:20, verbose = FALSE)
 
 DimPlot(seurat_hdf5, reduction = "umap") + NoLegend()
-gc()
+
 
 str(seurat_hdf5)
 
 
-#####
+ 
 # Clustering 
 seurat_hdf5 <- FindNeighbors(seurat_hdf5, dims = 1:30)
 
@@ -214,7 +150,7 @@ DimPlot(seurat_hdf5, group.by = "SCT_snn_res.1", label = TRUE)
 head(Idents(seurat_hdf5),5)
 
 
-#####
+ 
 
 # findConserved markers 
 DefaultAssay(seurat_hdf5) <- "RNA"
@@ -225,7 +161,7 @@ all_cluster_markers <- list()
 # Get unique cluster identifiers
 clusters <- levels(Idents(seurat_hdf5)) # Assuming `Idents` contains the cluster information
 
-gc()
+
 
 # Loop through each cluster and find conserved markers
 
@@ -244,7 +180,7 @@ for (cluster in clusters) {
   #seurat_hdf5@meta.data[[paste0("markers_cluster_", cluster)]] <- markers
   
 }
-gc()
+
 
 rm(markers)
 
@@ -263,7 +199,7 @@ names(seurat_hdf5@misc$all_cluster_markers)
 FeaturePlot(seurat_hdf5,features = c("ST18"), min.cutoff = "q10")
 
 
-#####
+ 
 #Cell type annotation
 
 library(SingleR)
@@ -296,7 +232,7 @@ p7 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'singleR',label=TRUE)+
 p5|p7
 
 
-#####Annotation diagnostics ----------
+ Annotation diagnostics ----------
 
 # ...Based on the scores within cells 
 view(pred)
@@ -323,7 +259,7 @@ tab <- table(Assigned=seurat_hdf5@meta.data$cluster, Clusters=seurat_hdf5$seurat
 h4 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
 
 
-#####
+ 
 
 # setting Idents as Seurat annotations provided (also a sanity check!)
 Idents(seurat_hdf5) <- seurat_hdf5@meta.data$seurat_annotations
@@ -350,7 +286,7 @@ head(markers_cluster3)
 FeaturePlot(seurat_hdf5, features = c('FCGR3A', 'AIF1', 'IFIT1'), split.by = 'stim', min.cutoff = 'q10')
 
 
-#####Extract top markers for each cluster ----
+ Extract top markers for each cluster ----
 
 top_markers_list <- lapply(all_cluster_markers, function(cluster_markers) {
   cluster_markers %>%

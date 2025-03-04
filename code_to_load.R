@@ -41,4 +41,4 @@ dim(seurat_hdf5)
 
 # Delete unnecessary variables
 rm(barcode_CT, barcodes, keep_CT_columns, hd5_object,filtered_matrix_CT)
-gc()  #  Clean up memory
+  #  Clean up memory

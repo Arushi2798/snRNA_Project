@@ -1,4 +1,4 @@
-#####
+ 
 #check if the data needed to be integrated and corrected for batch effect 
 
 library(Seurat)
@@ -31,7 +31,7 @@ p5|p6
 
 #grid.arrange(p1, p2, ncol = 2, nrow = 2)
 
-#####
+ 
 #if separted data then perform batch correction using CCA
 # perform integration to correct for batch effects ------
 obj.list <- SplitObject(seurat_hdf5, split.by = 'Batch')
