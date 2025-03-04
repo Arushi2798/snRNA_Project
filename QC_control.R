@@ -49,24 +49,12 @@ print(p3)
 
 #####
 # Filter the Seurat object based on the suggested thresholds
-seurat_hdf5 <- subset(seurat_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5 & percent.mt > 0.1)
+seurat_hdf5 <- subset(seurat_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5)
 
 
 #####
 #either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
-#with parallelization
-set.seed(42)
-plan(multisession, workers = 8)
-options(future.globals.maxSize = 10 * 1024^3)  # 10 GiB
-gc()
-
-#After QC, normalize the count data using Seurat’s SCTransform function
 seurat_hdf5 = SCTransform(seurat_hdf5, verbose = TRUE,variable.features.n = 2000,vst.flavor = "v2s")
-
-#or without parallelization
-
-plan(sequential)  # Use a single-threaded plan
-seurat_hdf5 <- SCTransform(seurat_hdf5, verbose = TRUE, variable.features.n = 2000)
 
 #view the detection rate of genes
 genes = seurat_hdf5@assays$RNA@meta.data[rownames(seurat_hdf5), ]
