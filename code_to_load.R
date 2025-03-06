@@ -1,16 +1,23 @@
-#library needed
+#library needed in whole project
 library(Seurat)
 library(Matrix)
 library(hdf5r)
-library(tidyverse)
 library(MAST)
 library(presto)
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+library(dplyr)
+library(patchwork)
+library(ggrepel)
+library(scran)
+library(glmGamPoi)
+library(future)
 
 #set working directory
 setwd("path_to_directory")
 
 #read in the data
-
 hd5_object <- Read10X_h5(filename = "GSE174367_snRNA-seq_filtered_feature_bc_matrix.h5",
                          use.names = TRUE, unique.features = TRUE)
 
@@ -29,7 +36,6 @@ filtered_matrix_CT <- hd5_object[, keep_CT_columns]
 
 # Check the dimensions of the filtered matrix
 dim(filtered_matrix_CT)
-head(filtered_matrix_CT)
 
 # Create a Seurat object using the filtered dataset
 seurat_hdf5 <- CreateSeuratObject(counts = filtered_matrix_CT, project = "AD", min.cells = 3, min.features = 200)
