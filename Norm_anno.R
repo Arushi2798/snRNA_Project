@@ -2,23 +2,24 @@
 # Step 04: STANDARD WORKFLOW
 ################################################################################
 
-1. #either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
+#1. either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
 seurat_hdf5 = SCTransform(seurat_hdf5, verbose = TRUE,variable.features.n = 2000,vst.flavor = "v2s")
 
-#view the detection rate of genes
+    #view the detection rate of genes
 genes = seurat_hdf5@assays$RNA@meta.data[rownames(seurat_hdf5), ]
 genes = data.frame(genes, seurat_hdf5@assays[["SCT"]]@SCTModel.list[["counts"]]@feature.attributes, row.names = rownames(genes), stringsAsFactors = FALSE)
 hist(genes[, 'detection_rate'])
+
 #or perform normalizedata instead of sctransform
 seurat_hdf5 <- NormalizeData(seurat_hdf5)
 
 # 4. Identify highly variable features 
 seurat_hdf5 <- FindVariableFeatures(seurat_hdf5, nfeatures = 2000)
 
-# Identify the 10 most highly variable genes
+    # Identify the 10 most highly variable genes
 top20 <- head(VariableFeatures(seurat_hdf5), 20)
 
-# plot variable features with and without labels
+    # plot variable features with and without labels
 plot1 <- VariableFeaturePlot(seurat_hdf5)
 plot2 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
 plot1
@@ -26,16 +27,16 @@ plot2
 plot1|plot2
 
 
-#scaling
+#5. scaling
 seurat_hdf5 <- ScaleData(seurat_hdf5)
  
-# PCA
+#6. PCA
 seurat_hdf5 = RunPCA(seurat_hdf5, verbose = FALSE)
 
-# determine dimensionality of the data
+    # determine dimensionality of the data
 ElbowPlot(seurat_hdf5,ndims = 50)
 
-# visualize PCA results
+    # visualize PCA results
 print(seurat_hdf5[["pca"]], dims = 1:5, nfeatures = 5)
 
 VizDimLoadings(seurat_hdf5, dims = 1:2, reduction = "pca")
@@ -46,13 +47,12 @@ DimHeatmap(seurat_hdf5, dims = 1, cells = 500, balanced = TRUE)
 
 DimHeatmap(seurat_hdf5, dims = 1:20, cells = 500, balanced = TRUE)
  
-#PCA Visualization
+    #PCA Visualization
 
 total_variance <- sum(matrixStats::rowVars(Seurat::GetAssayData(seurat_hdf5, assay = "SCT", layer = "scale.data")))
 eigValues =  (seurat_hdf5$pca@stdev)^2
 
-####
-#Plot PCA elbow
+    #Plot PCA elbow
 pca.pdata = data.frame(PC = 1:length(seurat_hdf5$pca@stdev),
                        eigValues = (seurat_hdf5$pca@stdev)^2,  ## EigenValues
                        varExplained = eigValues / total_variance * 100,
@@ -68,42 +68,33 @@ print(pobj)
 dev.off()
 
 
-# non-linear dimensionality reduction 
+#7. non-linear dimensionality reduction 
 seurat_hdf5 <- RunUMAP(seurat_hdf5, dims = 1:30, verbose = FALSE,seed.use = 4867)
-# note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
+    # note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
 seurat_hdf5 = RunTSNE(seurat_hdf5, dims = 1:20, verbose = FALSE)
 
 DimPlot(seurat_hdf5, reduction = "umap") + NoLegend()
 
-
-str(seurat_hdf5)
-
-
- 
-# Clustering 
+#8. Clustering 
 seurat_hdf5 <- FindNeighbors(seurat_hdf5, dims = 1:30)
 
-# understanding resolution
+    # understanding resolution
 seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.1,0.2,0.3, 0.5, 0.7,1))
 View(seurat_hdf5@meta.data)
 
-#used 
+    #final selection 
 seurat_hdf5 <- FindClusters(seurat_hdf5, resolution =0.3)
 
-#visualization
-
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.1", label = TRUE)
+    #cluster visualization
+DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.1", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.2", label = TRUE)
 DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.3", label = TRUE)
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.5", label = TRUE)
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.7", label = TRUE)
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.1", label = TRUE)
 
 head(Idents(seurat_hdf5),5)
-#set the identity of the dataset for further ananlysis on the basis of cluster resolution
+    #set the identity of the dataset for further ananlysis on the basis of cluster resolution
 Idents(seurat_hdf5) <- "RNA_snn_res.0.1" #if resolution of 0.1 preferred
 
-# findConserved markers 
+#9. findConserved markers 
 DefaultAssay(seurat_hdf5) <- "RNA"
 
 # Create a list to store the markers for each cluster
