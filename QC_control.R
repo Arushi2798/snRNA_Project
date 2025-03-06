@@ -1,11 +1,3 @@
-library(ggplot2)
-library(dplyr)
-library(patchwork)
-library(ggrepel)
-library(scran)
-library(glmGamPoi)
-library(future)
-
 seurat_hdf5@meta.data$orig.ident = NULL
 seurat_hdf5@assays$RNA@meta.data = data.frame(Geneid = rownames(seurat_hdf5), Symbol = rownames(seurat_hdf5), row.names = rownames(seurat_hdf5), stringsAsFactors = FALSE)
 

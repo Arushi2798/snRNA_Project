@@ -1,4 +1,6 @@
+#######################################################################
 #library needed in whole project
+#######################################################################
 library(Seurat)
 library(Matrix)
 library(hdf5r)
@@ -51,7 +53,9 @@ gc()#  Clean up memory
 #loading by directly selecting the file for metadata
 metadata <- read.csv(file.choose(), row.names = 1)
 
+#######################################################################
 # Add metadata to Seurat object
+#######################################################################
 seurat_hdf5 <- AddMetaData(object=seurat_hdf5, metadata = metadata)
 
 #Check that the metadata was added correctly

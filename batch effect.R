@@ -32,7 +32,6 @@ for(i in 1:length(obj.list)){
   obj.list[[i]] <- FindVariableFeatures(object = obj.list[[i]])
 }
 
-
 # select integration features
 features <- SelectIntegrationFeatures(object.list = obj.list)
 
@@ -77,15 +76,14 @@ output <- output %>%
   selectGenes() %>%
   scaleNotCenter()
 
-output
-
+view(output)
 
 #performing iNMF integration on the two dataset
 
 output <- output %>%
   runINMF(k = 20) %>%
   quantileNorm()
-output
+view(output)
 
 #Visualizing the integration result when cell annotation is already provided
 
