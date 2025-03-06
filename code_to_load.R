@@ -48,7 +48,7 @@ dim(seurat_hdf5)
 rm(barcode_CT, barcodes, keep_CT_columns, hd5_object,filtered_matrix_CT)
 gc()#  Clean up memory
 
-#loading by directly selecting the file
+#loading by directly selecting the file for metadata
 metadata <- read.csv(file.choose(), row.names = 1)
 
 # Add metadata to Seurat object
@@ -64,3 +64,14 @@ dim(seurat_hdf5@meta.data)
 missing_barcodes <- setdiff(colnames(seurat_hdf5), rownames(metadata))
 length(missing_barcodes)
 head(missing_barcodes)  # View the first few missing barcodes
+
+#drop the cells if <5% data is missing
+
+# Identify missing barcodes
+missing_barcodes <- setdiff(colnames(seurat_hdf5), rownames(metadata))
+
+# Filter Seurat object to keep only barcodes that exist in metadata
+seurat_hdf5<- subset(seurat_hdf5, cells = setdiff(Cells(seurat_hdf5), missing_barcodes))
+
+# Check the new dimensions
+dim(seurat_hdf5)
