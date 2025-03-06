@@ -60,7 +60,7 @@ seurat.integrated <- RunUMAP(object = seurat.integrated, dims = 1:50)
 rm(p3,seurat.integrated, anchors,features,obj.list)
 
 
-#to perform integration between batches using 
+#to perform integration between batches using LIGER, which is based on iNMF (integrative Non-negative Matrix Factorization)
 #liger workflow 
 output<-seurat_hdf5
 #splitting the dataset based on Diagnosis
