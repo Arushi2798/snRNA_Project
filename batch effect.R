@@ -1,10 +1,4 @@
- 
 #check if the data needed to be integrated and corrected for batch effect 
-
-library(Seurat)
-library(ggplot2)
-library(tidyverse)
-library(gridExtra)
 
 # perform standard workflow steps to figure out if we see any batch effects --------
 seurat_hdf5 <- NormalizeData(object = seurat_hdf5)
@@ -25,12 +19,10 @@ p4 <-DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'seurat_clusters') + No
 p5 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Cell.Type',label=TRUE)
 p6 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'cluster', label=TRUE)
 
+p3
 p1|p2
 p2|p4
 p5|p6
-
-#grid.arrange(p1, p2, ncol = 2, nrow = 2)
-
  
 #if separted data then perform batch correction using CCA
 # perform integration to correct for batch effects ------
@@ -66,3 +58,48 @@ seurat.integrated <- RunUMAP(object = seurat.integrated, dims = 1:50)
 #grid.arrange(p1, p3, ncol = 2, nrow = 2)
 
 rm(p3,seurat.integrated, anchors,features,obj.list)
+
+
+#to perform integration between batches using 
+#liger workflow 
+output<-seurat_hdf5
+#splitting the dataset based on Diagnosis
+output[["RNA"]] <- split(output[["RNA"]], f = output$Diagnosis)
+
+#to work with seurat object we don't need to create liger object
+#filtering 
+output <- subset(output, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5)
+
+#standard workflow
+
+output <- output %>%
+  normalize() %>%
+  selectGenes() %>%
+  scaleNotCenter()
+
+output
+
+
+#performing iNMF integration on the two dataset
+
+output <- output %>%
+  runINMF(k = 20) %>%
+  quantileNorm()
+output
+
+#Visualizing the integration result when cell annotation is already provided
+
+output <- RunUMAP(output, reduction = "inmfNorm", dims = 1:20)
+gg.byDataset <- DimPlot(output, group.by = "Diagnosis")
+gg.byCelltype <- DimPlot(output, group.by = "Cell.Type")
+gg.byDataset + gg.byCelltype
+
+DimPlot(ifnb, group.by = "Cell.Type", split.by = "Diagnosis")
+
+#in case when annotation is performed after integration
+
+output <- output %>%
+  FindNeighbors(reduction = "inmfNorm", dims = 1:20) %>%
+  FindClusters()
+
+DimPlot(output, group.by = "seurat_clusters")
