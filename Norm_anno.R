@@ -97,13 +97,13 @@ Idents(seurat_hdf5) <- "RNA_snn_res.0.1" #if resolution of 0.1 preferred
 #9. findConserved markers 
 DefaultAssay(seurat_hdf5) <- "RNA"
 
-# Create a list to store the markers for each cluster
+    # Create a list to store the markers for each cluster
 all_cluster_markers <- list()
 
-# Get unique cluster identifiers
+    # Get unique cluster identifiers
 clusters <- levels(Idents(seurat_hdf5)) # Assuming `Idents` contains the cluster information
 
-# Loop through each cluster and find conserved markers
+    # Loop through each cluster and find conserved markers
 
 for (cluster in clusters) {
   # Find conserved markers for the current cluster
@@ -121,24 +121,23 @@ for (cluster in clusters) {
   
 }
 
-
+saveRDS(all_cluster_markers, file = "all_cluster_markers.rds")#save the all_Clusters_markers file.
 rm(markers)
 
-# Inspect the results for a specific cluster (e.g., Cluster 3)
+    # Inspect the results for a specific cluster (e.g., Cluster 0)
 head(all_cluster_markers[["Cluster_0"]])
-saveRDS(all_cluster_markers, file = "all_cluster_markers.rds")
 
-# Add the all_cluster_markers list to the misc slot
-seurat_hdf5@misc$all_cluster_markers <- all_cluster_markers
 
-# Verify that the data has been added
-names(seurat_hdf5@misc$all_cluster_markers)
+#     # Add the all_cluster_markers list to the misc slot
+# seurat_hdf5@misc$all_cluster_markers <- all_cluster_markers
 
-#visualize top Features
+#     # Verify that the data has been added
+# names(seurat_hdf5@misc$all_cluster_markers)
 
+    #visualize top Features
 FeaturePlot(seurat_hdf5,features = c("ST18"), min.cutoff = "q10")
 
-#Cell type annotation
+#10. Cell type annotation
 
 library(SingleR)
 library(celldex)

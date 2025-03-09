@@ -6,9 +6,8 @@ programming language used is: R<br>
 sample datset: GSE174367 <br>
 objective: Single-Nucleus Exploration of Cellular Mechanisms and Gene Expression Patterns in Alzheimer's Disease<br>
 Methodology: <ol>
-<li> Data retrival</li>
-<li>quantification of count matrix</li>
-<li>quality control</li>
+<li> Data retrival</li> <a href="/snRNA_Project/code_to_load.R">
+<li>quality control</li> <a href= "/snRNA">
 <li>normalization</li>
 <li>feature extraction and dimensionality reduction</li>
 <li>clustering</li>
