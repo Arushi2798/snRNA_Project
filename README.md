@@ -14,10 +14,8 @@ Methodology: <ol>
         <li>finding variable gene</li>
         <li>scaling</li>
         <li>Dimension Reduction by: PCA, UMAP, t-SNE</li>
+        <li>clustering</li>
     </ul>
 </li>
-<li>feature extraction and dimensionality reduction</li>
-<li>clustering</li>
-<li>cell type inference and annotation</li>
 <li>differential expression for disease gene identification</li>
 </ol>
