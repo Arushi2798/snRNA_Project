@@ -155,7 +155,7 @@ fp+NoLegend()|fp1|p5
 
 theme_set(theme_cowplot())
 aggregate_info <- AggregateExpression(seu1,group.by = c("cluster","Diagnosis"),return.seurat =TRUE)
-genes.to.label=c(""RNF219-AS1"","","","","","","","","",'')
+genes.to.label=c("RNF219-AS1","","","","","","","","",'')
 cs1 <- CellScatter(aggregate_info,'ASC1_AD','ASC1_Control', highlight = genes.to.label)
 cs2 <- CellScatter(aggregate_info,'ASC2_AD','ASC2_Control', highlight = genes.to.label)
 cs3 <- CellScatter(aggregate_info,'ASC3_AD','ASC3_Control', highlight = genes.to.label)
