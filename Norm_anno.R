@@ -134,10 +134,10 @@ for (cluster in clusters) {
 
 rm(markers)
 
-# Inspect the results for a specific cluster (e.g., Cluster 7)
-head(all_cluster_markers[["Cluster_7"]])
+# Inspect the results for a specific cluster (e.g., Cluster 1)
+head(all_cluster_markers[["Cluster_1"]])
 
-#saveRDS(marker_results, file = "marker_results.rds")
+#saveRDS(all_cluster_markers, file = "all_cluster_markers.rds")
 
 #visualize top Features
 
