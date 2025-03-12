@@ -8,7 +8,7 @@ objective: Single-Nucleus Exploration of Cellular Mechanisms and Gene Expression
 Methodology: <ol>
 <li><a href="/snRNA_Project/code_to_load.R">Data retrival</li>
 <li><a href="/snRNA_Project/QC.R" >quality control </li>
-<li><a href="/snRNA_Project/Norm_anno.R">normalization to cell annotation
+<li><a href="/snRNA_Project/Norm_anno.R">normalization to cell annotation</a>
     <ul>
         <li>normalization</li>
         <li>finding variable gene</li>
