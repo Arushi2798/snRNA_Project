@@ -2,7 +2,7 @@
 # Step 04: STANDARD WORKFLOW
 ################################################################################
 
-#1. either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
+#1_1. either perform SCTranform only as  this single command replaces NormalizeData(), ScaleData(), and FindVariableFeatures()
 seurat_hdf5 = SCTransform(seurat_hdf5, verbose = TRUE,variable.features.n = 2000,vst.flavor = "v2s")
 
     #view the detection rate of genes
@@ -10,10 +10,10 @@ genes = seurat_hdf5@assays$RNA@meta.data[rownames(seurat_hdf5), ]
 genes = data.frame(genes, seurat_hdf5@assays[["SCT"]]@SCTModel.list[["counts"]]@feature.attributes, row.names = rownames(genes), stringsAsFactors = FALSE)
 hist(genes[, 'detection_rate'])
 
-#or perform normalizedata instead of sctransform
+#1_2. or perform normalizedata instead of sctransform
 seurat_hdf5 <- NormalizeData(seurat_hdf5)
 
-# 4. Identify highly variable features 
+# 2. Identify highly variable features 
 seurat_hdf5 <- FindVariableFeatures(seurat_hdf5, nfeatures = 2000)
 
     # Identify the 10 most highly variable genes
