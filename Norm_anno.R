@@ -86,7 +86,7 @@ seurat_hdf5 <- FindNeighbors(seurat_hdf5, reduction = "inmf", dims = 1:dim(seura
 
     # understanding resolution
 seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.1,0.2,0.3, 0.5,0.9, n.start=10))
-View(seurat_hdf5@meta.data)
+
 
     #used for cluster separation after reductions 
 seurat_hdf5 <- FindClusters(seurat_hdf5, resolution =0.1) #(final selection)
@@ -98,22 +98,26 @@ cl3<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.3", label = TRUE)
 cl4<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.5", label = TRUE)
 cl5<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.9", label = TRUE)
 
-Idents(seurat_hdf5)
-
+#check the identy of the clusteers, levels of clusters formed
 head(Idents(seurat_hdf5),5)
+
     #set the identity of the dataset for further ananlysis on the basis of cluster resolution
 Idents(seurat_hdf5) <- "RNA_snn_res.0.1" #if resolution of 0.1 preferred
 
 #9. findConserved markers 
+#since data layers are not joined due to batch correction.Running JoinLayers
+seurat_hdf5<-JoinLayers(seurat_hdf5)
 DefaultAssay(seurat_hdf5) <- "RNA"
 
-    # Create a list to store the markers for each cluster
+# Create a list to store the markers for each cluster
 all_cluster_markers <- list()
 
-    # Get unique cluster identifiers
+# Get unique cluster identifiers
 clusters <- levels(Idents(seurat_hdf5)) # Assuming `Idents` contains the cluster information
 
-    # Loop through each cluster and find conserved markers
+gc()
+
+# Loop through each cluster and find conserved markers
 
 for (cluster in clusters) {
   # Find conserved markers for the current cluster
@@ -121,7 +125,7 @@ for (cluster in clusters) {
     seurat_hdf5, 
     ident.1 = cluster, 
     grouping.var = 'Diagnosis', 
-    verbose = TRUE  # Optional, for detailed output during processing
+    verbose = TRUE  # Optional, for detailed seurat_hdf5 during processing
   )
   
   # Store the markers in the list, using the cluster number as the key
@@ -130,232 +134,138 @@ for (cluster in clusters) {
   #seurat_hdf5@meta.data[[paste0("markers_cluster_", cluster)]] <- markers
   
 }
+gc()
 
-saveRDS(all_cluster_markers, file = "all_cluster_markers.rds")#save the all_Clusters_markers file.
 rm(markers)
 
-    # Inspect the results for a specific cluster (e.g., Cluster 0)
-head(all_cluster_markers[["Cluster_0"]])
+# Inspect the results for a specific cluster (e.g., Cluster 7)
+head(all_cluster_markers[["Cluster_7"]])
+#saveRDS(marker_results, file = "marker_results.rds")
 
+#visualize top Features
 
-#     # Add the all_cluster_markers list to the misc slot
-# seurat_hdf5@misc$all_cluster_markers <- all_cluster_markers
+fp1 <- FeaturePlot(seurat_hdf5,features = c("RNF219-AS1"), min.cutoff = "q10")
+fp+NoLegend()|fp1
 
-#     # Verify that the data has been added
-# names(seurat_hdf5@misc$all_cluster_markers)
+umap2 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Cell.Type')
+fp+NoLegend()|fp1|p5
+################################################################################
+# Step 07: find differential expressed genes across conditions
+################################################################################
 
-    #visualize top Features
-FeaturePlot(seurat_hdf5,features = c("ST18"), min.cutoff = "q10")
+theme_set(theme_cowplot())
+aggregate_info <- AggregateExpression(seu1,group.by = c("cluster","Diagnosis"),return.seurat =TRUE)
+genes.to.label=c(""RNF219-AS1"","","","","","","","","",'')
+cs1 <- CellScatter(aggregate_info,'ASC1_AD','ASC1_Control', highlight = genes.to.label)
+cs2 <- CellScatter(aggregate_info,'ASC2_AD','ASC2_Control', highlight = genes.to.label)
+cs3 <- CellScatter(aggregate_info,'ASC3_AD','ASC3_Control', highlight = genes.to.label)
+cs4 <- CellScatter(aggregate_info,'ASC4_AD','ASC4_Control', highlight = genes.to.label)
 
-#10. Cell type annotation
+cs1|cs2|cs3|cs4
 
-library(SingleR)
-library(celldex)
-library(pheatmap)
+################################################################################
+# Step 08: find differential expressed genes between conditions
+################################################################################
 
+Idents(seurat_hdf5) <- seurat_hdf5@meta.data$cluster
+
+seurat_hdf5$cell.type.cnd <- paste0(seurat_hdf5$cluster,'_', seurat_hdf5$Diagnosis)
 View(seurat_hdf5@meta.data)
-ref <- celldex::HumanPrimaryCellAtlasData()
 
-View(as.data.frame(colData(ref)))
-pbmc_counts <- GetAssayData(seurat_hdf5, layer = 'counts')
-pred <- SingleR(test = pbmc_counts,
-                ref = ref,
-                labels = ref$label.fine)
+Idents(seurat_hdf5) <- seurat_hdf5$cell.type.cnd
 
-view(pred)
-seurat_hdf5$singleR.labels <- pred$labels[match(rownames(seurat_hdf5@meta.data), rownames(pred))]
-DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'singleR.labels',label = TRUE)
-
-#another way
-pred1 <- SingleR(test = pbmc_counts,
-               ref = ref,
-            labels = ref$label.main)
-
-view(pred1)
-
-seurat_hdf5$singleR <- pred1$labels[match(rownames(seurat_hdf5@meta.data), rownames(pred1))]
-p7 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'singleR',label=TRUE)+NoLegend()
-p5|p7
-
-    #Annotation diagnostics ----------
-
-    # ...Based on the scores within cells 
-view(pred)
-pred$scores
-plotScoreHeatmap(pred)
-
-    # ...Based on deltas across cells 
-plotDeltaDistribution(pred)
-
-tab <- table(Assigned=pred$labels, Clusters=seurat_hdf5$seurat_clusters)
-h1 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
-
-tab <- table(Assigned=pred1$labels, Clusters=seurat_hdf5$seurat_clusters)
-h2 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
-
-##
-    #for Cell.Type already in the metadata given
-
-tab <- table(Assigned=seurat_hdf5@meta.data$Cell.Type, Clusters=seurat_hdf5$seurat_clusters)
-h3 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
-
-tab <- table(Assigned=seurat_hdf5@meta.data$cluster, Clusters=seurat_hdf5$seurat_clusters)
-h4 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
+compare<-DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE) +NoLegend()
 
 
-    # setting Idents as Seurat annotations provided (also a sanity check!)
-Idents(seurat_hdf5) <- seurat_hdf5@meta.data$seurat_annotations
-Idents(seurat_hdf5)
+# Define all cell types
+cell_types <- c("INH1", "ODC2", "MG3", "ODC6", "ODC1", "ODC7", "EX2",
+                "INH2", "ODC11", "ODC9", "MG1", "OPC1", "EX1", "INH3",
+                "ASC1", "ODC8", "EX3", "INH4", "PER.END1", "EX4", "ASC3",
+                "ASC2", "ODC4", "OPC2", "ODC5", "ODC13", "ODC3", "MG2",
+                "ODC12", "EX5", "ODC10", "PER.END3", "PER.END2", "ASC4")
 
-DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE)
+# Initialize an empty list to store results
+marker_results <- list()
 
-
-#######yet to be performed
-
-#11. find markers between conditions---------------------
-seurat_hdf5$cell.type.cnd <- paste0(seurat_hdf5$seurat_annotations,'_', seurat_hdf5$Diagnosis)
-View(seurat_hdf5@meta.data)
-Idents(seurat_hdf5) <- seurat_hdf5$celltype.cnd
-
-DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE)
-
-    # find markers
-b.interferon.response <- FindMarkers(seurat_hdf5, ident.1 = 'CD16 Mono_STIM', ident.2 = 'CD16 Mono_CTRL')
-
-head(b.interferon.response)
-
-    # plotting conserved features vs DE features between conditions
-head(markers_cluster3)
-
-FeaturePlot(seurat_hdf5, features = c('FCGR3A', 'AIF1', 'IFIT1'), split.by = 'stim', min.cutoff = 'q10')
-
-
-    #Extract top markers for each cluster ----
-
-top_markers_list <- lapply(all_cluster_markers, function(cluster_markers) {
-  cluster_markers %>%
-    filter(avg_log2FC > 1 & p_val_adj < 0.05) %>% # Adjust thresholds as needed
-    arrange(desc(avg_log2FC)) %>%
-    head(20)  # Select the top 20 markers
-})
-
-    # Combine the results for all clusters into a single data frame
-top_markers_df <- bind_rows(
-  lapply(names(top_markers_list), function(cluster) {
-    data.frame(cluster = cluster, top_markers_list[[cluster]])
-  })
-)
-
-    # Save the results for future reference
-write.csv(top_markers_df, "top_markers_per_cluster.csv")
-
-#12. Prepare a gene list for enrichment analysis ----
-top_markers_list <- lapply(all_cluster_markers, function(markers_df) {
-  # Add a new column for the average log2 fold change across conditions
-  markers_df <- markers_df %>%
-    mutate(avg_log2FC = (Control_avg_log2FC + AD_avg_log2FC) / 2)
+# Loop through each cell type and compute differentially expressed genes
+for (cell in cell_types) {
+  ident_ad <- paste0(cell, "_AD")
+  ident_control <- paste0(cell, "_Control")
   
-  # Filter and sort genes based on adjusted p-value and fold change
-  filtered_df <- markers_df %>%
-    filter(max_pval < 0.05) %>%  # Consider only significant genes
-    arrange(desc(avg_log2FC)) %>%  # Sort by average fold change
-    slice_head(n = 10)  # Select the top 10 genes
-  
-  # Extract the row names (gene names)
-  rownames(filtered_df)
-})
+  # Find markers
+  marker_results[[cell]] <- FindMarkers(seurat_hdf5, ident.1 = ident_ad, ident.2 = ident_control)
+}
 
-top_markers_df <- bind_rows(
-  lapply(names(top_markers_list), function(cluster) {
-    data.frame(cluster = cluster, gene = top_markers_list[[cluster]])
-  })
-)
-View(top_markers_df)
-
-# Save to a CSV file
-write.csv(top_markers_df, "top_markers_per_cluster.csv", row.names = FALSE)
-
-# Combine all cluster gene lists into a single unique list for enrichment
-gene_list <- unique(unlist(top_markers_list))
-
-# View the resulting gene list
-head(gene_list)
+# Check the results
+marker_results[["ASC1"]]  # Example: Accessing results for ASC1
 
 
-library(clusterProfiler)
-library(org.Hs.eg.db)  # Use appropriate organism database
 
-# Convert gene names to Entrez IDs
-gene_list <- unique(top_markers_df$gene)
-gene_list <- toupper(gene_list)
+# find markers for astrocytes
+d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC1_AD', ident.2 = 'ASC1_Control')
+d2<- FindMarkers(seurat_hdf5, ident.1 = 'ASC2_AD', ident.2 = 'ASC2_Control')
+d3<- FindMarkers(seurat_hdf5, ident.1 = 'ASC3_AD', ident.2 = 'ASC3_Control')
+d4<- FindMarkers(seurat_hdf5, ident.1 = 'ASC4_AD', ident.2 = 'ASC4_Control')
 
-gene_ids <- bitr(gene_list, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = org.Hs.eg.db)
+# find markers for inhibitory neurons
+i1 <-FindMarkers(seurat_hdf5, ident.1 = 'INH1_AD', ident.2 = 'INH1_Control')
+i2 <-FindMarkers(seurat_hdf5, ident.1 = 'INH2_AD', ident.2 = 'INH2_Control')
+i3 <-FindMarkers(seurat_hdf5, ident.1 = 'INH3_AD', ident.2 = 'INH3_Control')
+i4 <-FindMarkers(seurat_hdf5, ident.1 = 'INH4_AD', ident.2 = 'INH4_Control')
 
-# Find unmapped genes
-unmapped_genes <- setdiff(gene_list, gene_ids$SYMBOL)
+# find markers for excitatory neurons
+# find markers for microglia
+# find markers for oligo.Progenators
+# find markers for oligodendrocytes
+O1 <-FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'INH1_Control')
 
-# Print unmapped genes for inspection
-print(unmapped_genes)
+# find markers for Pericytes Endothelial
+d2<- FindMarkers(seurat_hdf5, ident.1 = 'EX_AD', ident.2 = 'EX_Control')
+d3 <- FindMarkers(seurat_hdf5, ident.1 = 'INH_AD', ident.2 = 'INH_Control')
+d4 <- FindMarkers(seurat_hdf5, ident.1 = 'MG_AD', ident.2 = 'MG_Control')
+d5 <- FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'ODC_Control')
+d6 <- FindMarkers(seurat_hdf5, ident.1 = 'OPC_AD', ident.2 = 'OPC_Control')
+d7 <- FindMarkers(seurat_hdf5, ident.1 = 'PER.END_AD', ident.2 = 'PER.END_Control')
 
+head(d1)
 
-# GO enrichment analysis----
-go_results <- enrichGO(
-  gene = gene_ids$ENTREZID,
-  OrgDb = org.Hs.eg.db,
-  ont = "BP",  # Biological process
-  pAdjustMethod = "BH",
-  pvalueCutoff = 0.05,
-  qvalueCutoff = 0.05,
-  readable = TRUE
-)
+# plotting conserved features vs DE features between conditions
+head(all_cluster_markers[["Cluster_"]])
 
+Z2<-FeaturePlot(seurat_hdf5, features = c("GINS3","MALAT1","CNN3","CYP4F3")
+                                     , split.by = 'Diagnosis', min.cutoff = "q10")
 
-# KEGG pathway enrichment
-kegg_results <- enrichKEGG(
-  gene = gene_ids$ENTREZID,
-  organism = 'hsa',  # Change to the relevant organism code (e.g., "mmu" for mouse)
-  keyType = "kegg",
-  pvalueCutoff = 0.05
-)
+Z1<-FeaturePlot(seurat_hdf5, features = c("AC063952.1","TBC1D3D","SIM2","GRTP1"), split.by = 'Diagnosis', min.cutoff = "q10")
+gc()
+vn3<-VlnPlot(seurat_hdf5, features= c("AC063952.1","TBC1D3D","SIM2","GRTP1"),split.by="Diagnosis", group.by= "cluster", pt.size=0, combine=FALSE)
 
-# Visualize GO results
-dotplot(go_results, showCategory = 10)+ ggtitle("GO Enrichment")  # Adjust showCategory as needed
+vn4<- wrap_plots(plots=vn3, ncol=1) 
 
-# Visualize KEGG results
-dotplot(kegg_results, showCategory = 1)+ ggtitle("KEGG Pathway Enrichment")
+################################################################################
+# Step 09: find all markers between clusters
+################################################################################
 
-# Group by annotated cell types and extract top markers
-celltype_markers <- FindMarkers(seurat_hdf5, group.by = "singleR.labels")
+seurat.markers <-FindAllMarkers(seurat_hdf5, only.pos = TRUE)
 
-# Save cell type markers
-write.csv(celltype_markers, "celltype_markers.csv")
+gc()
+saveRDS(seurat.markers, file = "seurat.markers.rds")
 
-# Visualize cell type marker expression
-FeaturePlot(seurat_hdf5, features = c("marker_gene1", "marker_gene2"))
+seurat.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC > 1)
 
+cluster7.markers <- findMarkers(seurat_hdf5,ident.1=7,logfc.threshold=0.25,test.use ="VCAN")
 
-library(enrichR)
+##visualizations
+vn1<-VlnPlot(seurat_hdf5, features= c('LINC01608', 'CD22'))
+vn2<-VlnPlot(seurat_hdf5, features= c('MOG', 'LDB3'), layer= "counts", log=TRUE)
+#some error in this next plot fp2
+fp2<-FeaturePlot(seurat_hdf5, features=c('LINC01608', 'CD22','MOG', 'LDB3','OPALIN', 'MOBP'))
 
-# Available databases
-dbs <- listEnrichrDbs()
+seurat.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC <1) %>%
+  slice_head(n=10) %>%
+  ungroup()-> top10
 
-# Perform enrichment analysis
-results <- enrichr(gene_list, c("GO_Biological_Process_2021", "KEGG_2021_Human"))
-
-# View results for GO Biological Process
-head(results$GO_Biological_Process_2021)
-
-# Visualize results
-barplot(as.numeric(results$KEGG_2021_Human$Adjusted.P.value[1:10]), 
-        names.arg = results$KEGG_2021_Human$Term[1:10],
-        las = 2,
-        col = "skyblue",
-        main = "Top KEGG Pathways")
-
-write.table(gene_list, file = "marker_genes.txt", row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-# Visualize enriched GO terms with a barplot
-barplot(go_results, showCategory = 10)
-
-# Visualize enriched KEGG pathways
-emapplot(kegg_results)
+hp1<- DoHeatmap(seurat_hdf5, features =top10$gene) + NoLegend()
