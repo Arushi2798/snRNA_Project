@@ -18,5 +18,5 @@ Methodology: <ol>
         <li>clustering</li>
     </ul>
 </li>
-<li>differential expression for disease gene identification</li>
+<li><a href="DEG.R" >differential expression for disease gene identification</li>
 </ol>       
