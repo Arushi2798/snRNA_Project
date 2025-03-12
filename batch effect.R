@@ -75,9 +75,6 @@ rm(p3,seurat.integrated, anchors,features,obj.list)
 seuart_hdf5[["RNA"]] <- split(seuart_hdf5[["RNA"]], f = seuart_hdf5$Diagnosis)
 
 #to work with seurat object we don't need to create liger object
-#filtering 
-seuart_hdf5 <- subset(seuart_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5)
-
 #standard workflow
 
 seuart_hdf5 <- seuart_hdf5 %>%
@@ -92,18 +89,19 @@ view(seuart_hdf5)
 seuart_hdf5 <- seuart_hdf5 %>%
   runINMF(k = 20) %>%
   quantileNorm()
+
 view(seuart_hdf5)
 
-#Visualizing the integration result when cell annotation is already provided
+##Visualizing the integration result when cell annotation is already provided
 
+#no need to run standard workflow steps beforehand when using iNMF, those will be done later
 seuart_hdf5 <- RunUMAP(seuart_hdf5, reduction = "inmfNorm", dims = 1:20)
-gg.byDataset <- DimPlot(seuart_hdf5, group.by = "Diagnosis")
-gg.byCelltype <- DimPlot(seuart_hdf5, group.by = "Cell.Type")
-gg.byDataset + gg.byCelltype
+p.2.2 <- DimPlot(seuart_hdf5, group.by = "Diagnosis")
+p.2.5 <- DimPlot(seuart_hdf5, group.by = "Cell.Type")
 
 DimPlot(ifnb, group.by = "Cell.Type", split.by = "Diagnosis")
 
-#in case when annotation is performed after integration
+##in case when annotation is performed after integration
 
 seuart_hdf5 <- seuart_hdf5 %>%
   FindNeighbors(reduction = "inmfNorm", dims = 1:20) %>%
