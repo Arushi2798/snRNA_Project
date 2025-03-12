@@ -115,10 +115,7 @@ all_cluster_markers <- list()
 # Get unique cluster identifiers
 clusters <- levels(Idents(seurat_hdf5)) # Assuming `Idents` contains the cluster information
 
-gc()
-
 # Loop through each cluster and find conserved markers
-
 for (cluster in clusters) {
   # Find conserved markers for the current cluster
   markers <- FindConservedMarkers(
@@ -134,7 +131,6 @@ for (cluster in clusters) {
   #seurat_hdf5@meta.data[[paste0("markers_cluster_", cluster)]] <- markers
   
 }
-gc()
 
 rm(markers)
 
@@ -149,6 +145,7 @@ fp+NoLegend()|fp1
 
 umap2 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Cell.Type')
 fp+NoLegend()|fp1|p5
+
 ################################################################################
 # Step 07: find differential expressed genes across conditions
 ################################################################################
