@@ -6,9 +6,9 @@ programming language used is: R<br>
 sample datset: GSE174367 <br>
 objective: Single-Nucleus Exploration of Cellular Mechanisms and Gene Expression Patterns in Alzheimer's Disease<br>
 Methodology: <ol>
-<li> Data retrival <a href="/snRNA_Project/code_to_load.R"></li>
-<li>quality control <a href="/snRNA_Project/QC.R" ></li>
-<li>normalization to cell annotation<a href="/snRNA_Project/Norm_anno.R">
+<li><a href="/snRNA_Project/code_to_load.R">Data retrival</li>
+<li><a href="/snRNA_Project/QC.R" >quality control </li>
+<li><a href="/snRNA_Project/Norm_anno.R">normalization to cell annotation
     <ul>
         <li>normalization</li>
         <li>finding variable gene</li>
@@ -18,4 +18,4 @@ Methodology: <ol>
     </ul>
 </li>
 <li>differential expression for disease gene identification</li>
-</ol>
+</ol>       
