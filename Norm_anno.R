@@ -167,16 +167,14 @@ seurat_hdf5$singleR <- pred1$labels[match(rownames(seurat_hdf5@meta.data), rowna
 p7 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'singleR',label=TRUE)+NoLegend()
 p5|p7
 
+    #Annotation diagnostics ----------
 
-#Annotation diagnostics ----------
-
-# ...Based on the scores within cells 
+    # ...Based on the scores within cells 
 view(pred)
 pred$scores
 plotScoreHeatmap(pred)
 
-# ...Based on deltas across cells 
-
+    # ...Based on deltas across cells 
 plotDeltaDistribution(pred)
 
 tab <- table(Assigned=pred$labels, Clusters=seurat_hdf5$seurat_clusters)
@@ -186,7 +184,7 @@ tab <- table(Assigned=pred1$labels, Clusters=seurat_hdf5$seurat_clusters)
 h2 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
 
 ##
-#for Cell.Type already in the metadata given
+    #for Cell.Type already in the metadata given
 
 tab <- table(Assigned=seurat_hdf5@meta.data$Cell.Type, Clusters=seurat_hdf5$seurat_clusters)
 h3 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
@@ -195,7 +193,7 @@ tab <- table(Assigned=seurat_hdf5@meta.data$cluster, Clusters=seurat_hdf5$seurat
 h4 <- pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
 
 
-# setting Idents as Seurat annotations provided (also a sanity check!)
+    # setting Idents as Seurat annotations provided (also a sanity check!)
 Idents(seurat_hdf5) <- seurat_hdf5@meta.data$seurat_annotations
 Idents(seurat_hdf5)
 
@@ -204,26 +202,25 @@ DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE)
 
 #######yet to be performed
 
-#find markers between conditions---------------------
+#11. find markers between conditions---------------------
 seurat_hdf5$cell.type.cnd <- paste0(seurat_hdf5$seurat_annotations,'_', seurat_hdf5$Diagnosis)
 View(seurat_hdf5@meta.data)
 Idents(seurat_hdf5) <- seurat_hdf5$celltype.cnd
 
 DimPlot(seurat_hdf5, reduction = 'umap', label = TRUE)
 
-# find markers
+    # find markers
 b.interferon.response <- FindMarkers(seurat_hdf5, ident.1 = 'CD16 Mono_STIM', ident.2 = 'CD16 Mono_CTRL')
 
 head(b.interferon.response)
 
-# plotting conserved features vs DE features between conditions
+    # plotting conserved features vs DE features between conditions
 head(markers_cluster3)
-
 
 FeaturePlot(seurat_hdf5, features = c('FCGR3A', 'AIF1', 'IFIT1'), split.by = 'stim', min.cutoff = 'q10')
 
 
-#Extract top markers for each cluster ----
+    #Extract top markers for each cluster ----
 
 top_markers_list <- lapply(all_cluster_markers, function(cluster_markers) {
   cluster_markers %>%
@@ -232,17 +229,17 @@ top_markers_list <- lapply(all_cluster_markers, function(cluster_markers) {
     head(20)  # Select the top 20 markers
 })
 
-# Combine the results for all clusters into a single data frame
+    # Combine the results for all clusters into a single data frame
 top_markers_df <- bind_rows(
   lapply(names(top_markers_list), function(cluster) {
     data.frame(cluster = cluster, top_markers_list[[cluster]])
   })
 )
 
-# Save the results for future reference
+    # Save the results for future reference
 write.csv(top_markers_df, "top_markers_per_cluster.csv")
 
-# Prepare a gene list for enrichment analysis ----
+#12. Prepare a gene list for enrichment analysis ----
 top_markers_list <- lapply(all_cluster_markers, function(markers_df) {
   # Add a new column for the average log2 fold change across conditions
   markers_df <- markers_df %>%
