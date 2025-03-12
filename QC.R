@@ -1,8 +1,6 @@
+#set origin identity to null
 seurat_hdf5@meta.data$orig.ident = NULL
 seurat_hdf5@assays$RNA@meta.data = data.frame(Geneid = rownames(seurat_hdf5), Symbol = rownames(seurat_hdf5), row.names = rownames(seurat_hdf5), stringsAsFactors = FALSE)
-
-
-View(seurat_hdf5@meta.data)
 
 ################################################################################
 # Step 02: Quality Control
@@ -19,13 +17,18 @@ summary(seurat_hdf5[[]]$percent.mt)
 # representing RNA abundance],percent.mt (Mitochondrial Content)
 
 VlnPlot(seurat_hdf5, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
 plot1 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
   geom_smooth(method = 'lm')
+
 plot2 <-FeatureScatter(seurat_hdf5, feature1 = "nCount_RNA", feature2 = "percent.mt")
+
 plot1|plot2
 
 # Filter the Seurat object based on the suggested thresholds
 seurat_hdf5 <- subset(x = seurat_hdf5, subset = nFeature_RNA > 200 & nFeature_RNA < 10000 & percent.mt < 5)
+
+#check the new dimension
 dim(seurat_hdf5)
 
 #removing all mitochondrial genes

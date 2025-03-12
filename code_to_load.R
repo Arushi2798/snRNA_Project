@@ -19,11 +19,16 @@ library(future)
 #set working directory
 setwd("path_to_directory")
 
+
+################################################################################
+# Step 0: Data Retrieval
+################################################################################
+
 #read in the data
 hd5_object <- Read10X_h5(filename = "GSE174367_snRNA-seq_filtered_feature_bc_matrix.h5",
                          use.names = TRUE, unique.features = TRUE)
 
-#subset the data for specific samples
+#if needed then subset the data for specific samples
 # Get the column names (barcodes)
 barcodes <- colnames(hd5_object)
 
@@ -43,6 +48,7 @@ seurat_hdf5 <- CreateSeuratObject(counts = filtered_matrix_CT, project = "AD", m
 str(seurat_hdf5)
 
 head(seurat_hdf5)
+
 # Check the dimensions of the data
 dim(seurat_hdf5)
 
