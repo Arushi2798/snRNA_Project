@@ -104,7 +104,7 @@ head(Idents(seurat_hdf5),5)
     #set the identity of the dataset for further ananlysis on the basis of cluster resolution
 Idents(seurat_hdf5) <- "RNA_snn_res.0.1" #if resolution of 0.1 preferred
 
-#9. findConserved markers 
+#9. findConserved markers
 #since data layers are not joined due to batch correction.Running JoinLayers
 seurat_hdf5<-JoinLayers(seurat_hdf5)
 DefaultAssay(seurat_hdf5) <- "RNA"
@@ -136,12 +136,10 @@ rm(markers)
 
 # Inspect the results for a specific cluster (e.g., Cluster 7)
 head(all_cluster_markers[["Cluster_7"]])
+
 #saveRDS(marker_results, file = "marker_results.rds")
 
 #visualize top Features
 
-fp1 <- FeaturePlot(seurat_hdf5,features = c("RNF219-AS1"), min.cutoff = "q10")
-fp+NoLegend()|fp1
-
+fp1 <- FeaturePlot(seurat_hdf5,features = c("gene_name"), min.cutoff = "q10")
 umap2 <- DimPlot(seurat_hdf5, reduction = 'umap', group.by = 'Cell.Type')
-fp+NoLegend()|fp1|p5

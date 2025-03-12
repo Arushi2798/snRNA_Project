@@ -1,6 +1,5 @@
-
 ################################################################################
-# Step 07: find differential expressed genes across conditions
+# Step 07: FIND DIFFERENTIALLY EXPRESSED GENES ACCROSS CONDITION
 ################################################################################
 
 theme_set(theme_cowplot())
@@ -14,7 +13,7 @@ cs4 <- CellScatter(aggregate_info,'ASC4_AD','ASC4_Control', highlight = genes.to
 cs1|cs2|cs3|cs4
 
 ################################################################################
-# Step 08: find differential expressed genes between conditions
+# Step 08: FIND DIFFERENTIAL EXPRESSED GENES BETWEEN CONDITIONS
 ################################################################################
 
 Idents(seurat_hdf5) <- seurat_hdf5@meta.data$cluster
