@@ -13,8 +13,11 @@ hist(genes[, 'detection_rate'])
 #1_2. or perform normalizedata instead of sctransform
 seurat_hdf5 <- NormalizeData(seurat_hdf5)
 
-# 2. Identify highly variable features 
+# 2. Identify highly variable features
 seurat_hdf5 <- FindVariableFeatures(seurat_hdf5, nfeatures = 2000)
+
+#save the variable features for futhure downstream analysis like finding hub genes via GRN or WGCNA
+hvgc<-VariableFeatures(seurat_hdf5)
 
     # Identify the 10 most highly variable genes
 top20 <- head(VariableFeatures(seurat_hdf5), 20)
@@ -22,14 +25,12 @@ top20 <- head(VariableFeatures(seurat_hdf5), 20)
     # plot variable features with and without labels
 plot1 <- VariableFeaturePlot(seurat_hdf5)
 plot2 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
-plot1
-plot2
-plot1|plot2
 
+plot1|plot2
 
 #5. scaling
 seurat_hdf5 <- ScaleData(seurat_hdf5)
- 
+
 #6. PCA
 seurat_hdf5 = RunPCA(seurat_hdf5, verbose = FALSE)
 
@@ -46,7 +47,7 @@ DimPlot(seurat_hdf5, reduction= "pca") + NoLegend()
 DimHeatmap(seurat_hdf5, dims = 1, cells = 500, balanced = TRUE)
 
 DimHeatmap(seurat_hdf5, dims = 1:20, cells = 500, balanced = TRUE)
- 
+
     #PCA Visualization
 
 total_variance <- sum(matrixStats::rowVars(Seurat::GetAssayData(seurat_hdf5, assay = "SCT", layer = "scale.data")))
@@ -67,28 +68,37 @@ pobj = ggplot(data = pca.pdata,aes(x = PC,y = varExplained)) + geom_point() + ge
 print(pobj)
 dev.off()
 
-
-#7. non-linear dimensionality reduction 
-seurat_hdf5 <- RunUMAP(seurat_hdf5, dims = 1:30, verbose = FALSE,seed.use = 4867)
+#7_1. non-linear dimensionality reduction by UMAP
+seurat_hdf5 <- RunUMAP(seurat_hdf5, reduction = "inmf", dims = 1:dim(seurat_hdf5[["inmf"]])[2])
     # note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
-seurat_hdf5 = RunTSNE(seurat_hdf5, dims = 1:20, verbose = FALSE)
 
-DimPlot(seurat_hdf5, reduction = "umap") + NoLegend()
+#7_2. non-linear dimensionality reduction by tSNE
+seurat_hdf5 <- RunTSNE(seurat_hdf5, reduction = "inmf", dims = 1:dim(seurat_hdf5[["inmf"]])[2])
+
+#visualize UMAP plot
+umap1<-DimPlot(seurat_hdf5, reduction = "umap") + NoLegend()
+
+#visualize TSNE plot
+tsne1<-DimPlot(seurat_hdf5, reduction = "tsne", label = TRUE) 
 
 #8. Clustering 
-seurat_hdf5 <- FindNeighbors(seurat_hdf5, dims = 1:30)
+seurat_hdf5 <- FindNeighbors(seurat_hdf5, reduction = "inmf", dims = 1:dim(seurat_hdf5[["inmf"]])[2], nn.eps=0.5)
 
     # understanding resolution
-seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.1,0.2,0.3, 0.5, 0.7,1))
+seurat_hdf5 <- FindClusters(seurat_hdf5, resolution = c(0.1,0.2,0.3, 0.5,0.9, n.start=10))
 View(seurat_hdf5@meta.data)
 
-    #final selection 
-seurat_hdf5 <- FindClusters(seurat_hdf5, resolution =0.3)
+    #used for cluster separation after reductions 
+seurat_hdf5 <- FindClusters(seurat_hdf5, resolution =0.1) #(final selection)
 
-    #cluster visualization
-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.1", label = TRUE)
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.2", label = TRUE)
-DimPlot(seurat_hdf5, group.by = "SCT_snn_res.0.3", label = TRUE)
+    #visualization
+cl1<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.1", label = TRUE)
+cl2<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.2", label = TRUE)
+cl3<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.3", label = TRUE)
+cl4<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.5", label = TRUE)
+cl5<-DimPlot(seurat_hdf5, group.by = "RNA_snn_res.0.9", label = TRUE)
+
+Idents(seurat_hdf5)
 
 head(Idents(seurat_hdf5),5)
     #set the identity of the dataset for further ananlysis on the basis of cluster resolution
