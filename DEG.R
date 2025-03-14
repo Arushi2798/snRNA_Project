@@ -51,29 +51,18 @@ marker_results[["ASC1"]]  # Example: Accessing results for ASC1
 
 
 # find markers for astrocytes
-d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC1_AD', ident.2 = 'ASC1_Control')
-d2<- FindMarkers(seurat_hdf5, ident.1 = 'ASC2_AD', ident.2 = 'ASC2_Control')
-d3<- FindMarkers(seurat_hdf5, ident.1 = 'ASC3_AD', ident.2 = 'ASC3_Control')
-d4<- FindMarkers(seurat_hdf5, ident.1 = 'ASC4_AD', ident.2 = 'ASC4_Control')
-
+d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC_AD', ident.2 = 'ASC_Control')
 # find markers for inhibitory neurons
-i1 <-FindMarkers(seurat_hdf5, ident.1 = 'INH1_AD', ident.2 = 'INH1_Control')
-i2 <-FindMarkers(seurat_hdf5, ident.1 = 'INH2_AD', ident.2 = 'INH2_Control')
-i3 <-FindMarkers(seurat_hdf5, ident.1 = 'INH3_AD', ident.2 = 'INH3_Control')
-i4 <-FindMarkers(seurat_hdf5, ident.1 = 'INH4_AD', ident.2 = 'INH4_Control')
-
+i1 <-FindMarkers(seurat_hdf5, ident.1 = 'INH_AD', ident.2 = 'INH_Control')
 # find markers for excitatory neurons
-# find markers for microglia
-# find markers for oligo.Progenators
-# find markers for oligodendrocytes
-O1 <-FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'INH1_Control')
-
-# find markers for Pericytes Endothelial
 d2<- FindMarkers(seurat_hdf5, ident.1 = 'EX_AD', ident.2 = 'EX_Control')
-d3 <- FindMarkers(seurat_hdf5, ident.1 = 'INH_AD', ident.2 = 'INH_Control')
+# find markers for microglia
 d4 <- FindMarkers(seurat_hdf5, ident.1 = 'MG_AD', ident.2 = 'MG_Control')
-d5 <- FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'ODC_Control')
+# find markers for oligo.Progenators
 d6 <- FindMarkers(seurat_hdf5, ident.1 = 'OPC_AD', ident.2 = 'OPC_Control')
+# find markers for oligodendrocytes
+d1 <-FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'ODC_Control')
+# find markers for Pericytes Endothelial
 d7 <- FindMarkers(seurat_hdf5, ident.1 = 'PER.END_AD', ident.2 = 'PER.END_Control')
 
 head(d1)
