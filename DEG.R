@@ -12,9 +12,31 @@ cs4 <- CellScatter(aggregate_info,'ASC4_AD','ASC4_Control', highlight = genes.to
 
 cs1|cs2|cs3|cs4
 
-################################################################################
-# Step 08: FIND DIFFERENTIAL EXPRESSED GENES BETWEEN CONDITIONS
-################################################################################
+#########################################################################################
+# Step 08_1: FIND DIFFERENTIAL EXPRESSED GENES BETWEEN CONDITIONS (for each cell types)
+#########################################################################################
+
+# find markers for astrocytes
+d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC_AD', ident.2 = 'ASC_Control')
+# find markers for inhibitory neurons
+i1 <-FindMarkers(seurat_hdf5, ident.1 = 'INH_AD', ident.2 = 'INH_Control')
+# find markers for excitatory neurons
+d2<- FindMarkers(seurat_hdf5, ident.1 = 'EX_AD', ident.2 = 'EX_Control')
+# find markers for microglia
+d4 <- FindMarkers(seurat_hdf5, ident.1 = 'MG_AD', ident.2 = 'MG_Control')
+# find markers for oligo.Progenators
+d6 <- FindMarkers(seurat_hdf5, ident.1 = 'OPC_AD', ident.2 = 'OPC_Control')
+# find markers for oligodendrocytes
+d1 <-FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'ODC_Control')
+# find markers for Pericytes Endothelial
+d7 <- FindMarkers(seurat_hdf5, ident.1 = 'PER.END_AD', ident.2 = 'PER.END_Control')
+
+head(d1)
+
+
+########################################################################################################
+# Step 08_2: FIND DIFFERENTIAL EXPRESSED GENES BETWEEN CONDITIONS (for each sub cell types)
+########################################################################################################
 
 Idents(seurat_hdf5) <- seurat_hdf5@meta.data$cluster
 
@@ -47,25 +69,6 @@ for (cell in cell_types) {
 
 # Check the results
 marker_results[["ASC1"]]  # Example: Accessing results for ASC1
-
-
-
-# find markers for astrocytes
-d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC_AD', ident.2 = 'ASC_Control')
-# find markers for inhibitory neurons
-i1 <-FindMarkers(seurat_hdf5, ident.1 = 'INH_AD', ident.2 = 'INH_Control')
-# find markers for excitatory neurons
-d2<- FindMarkers(seurat_hdf5, ident.1 = 'EX_AD', ident.2 = 'EX_Control')
-# find markers for microglia
-d4 <- FindMarkers(seurat_hdf5, ident.1 = 'MG_AD', ident.2 = 'MG_Control')
-# find markers for oligo.Progenators
-d6 <- FindMarkers(seurat_hdf5, ident.1 = 'OPC_AD', ident.2 = 'OPC_Control')
-# find markers for oligodendrocytes
-d1 <-FindMarkers(seurat_hdf5, ident.1 = 'ODC_AD', ident.2 = 'ODC_Control')
-# find markers for Pericytes Endothelial
-d7 <- FindMarkers(seurat_hdf5, ident.1 = 'PER.END_AD', ident.2 = 'PER.END_Control')
-
-head(d1)
 
 # plotting conserved features vs DE features between conditions
 head(all_cluster_markers[["Cluster_"]])
