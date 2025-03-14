@@ -16,6 +16,11 @@ cs1|cs2|cs3|cs4
 # Step 08_1: FIND DIFFERENTIAL EXPRESSED GENES BETWEEN CONDITIONS (for each cell types)
 #########################################################################################
 
+
+seurat_hdf5$cell.type.cnd <- paste0(seurat_hdf5$Cell.Type,'_', seurat_hdf5$Diagnosis)
+View(seurat_hdf5@meta.data)
+
+Idents(seurat_hdf5) <- seurat_hdf5$cell.type.cnd
 # find markers for astrocytes
 d1<- FindMarkers(seurat_hdf5, ident.1 = 'ASC_AD', ident.2 = 'ASC_Control')
 # find markers for inhibitory neurons
@@ -87,9 +92,6 @@ vn4<- wrap_plots(plots=vn3, ncol=1)
 ################################################################################
 
 seurat.markers <-FindAllMarkers(seurat_hdf5, only.pos = TRUE)
-
-gc()
-saveRDS(seurat.markers, file = "seurat.markers.rds")
 
 seurat.markers %>%
   group_by(cluster) %>%
