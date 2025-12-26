@@ -1,5 +1,5 @@
 # snRNA_Project
-codes used for my thesis project
+This repository contain the codes used for my thesis project
 
 sample database: GEO WEBSITE<br>
 programming language used is: R<br>
