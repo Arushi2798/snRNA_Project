@@ -1,10 +1,10 @@
-# snRNA_Project
+# Single Nucleus RNA Sequencing Analysis Project
 This repository contain the codes used for my thesis project
 
-sample database: GEO WEBSITE<br>
-programming language used is: R<br>
-sample datset: GSE174367 <br>
-objective: Single-Nucleus Exploration of Cellular Mechanisms and Gene Expression Patterns in Alzheimer's Disease<br>
+Sample database: NCBI GEO <br>
+Programming language used is: R<br>
+Sample datset: GSE174367 <br>
+Objective: Single-Nucleus Exploration of Cellular Mechanisms and Gene Expression Patterns in Alzheimer's Disease<br>
 Methodology: <ol>
 <li><a href="code_to_load.R">Data retrieval</li>
 <li><a href="QC.R" >Quality Control </li>
